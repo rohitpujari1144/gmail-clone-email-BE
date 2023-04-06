@@ -9,12 +9,12 @@ const dbUrl = 'mongodb+srv://rohit10231:rohitkaranpujari@cluster0.kjynvxt.mongod
 const client = new MongoClient(dbUrl)
 const port = 6000
 
-// getting all users information
+// getting all emails
 app.get('/', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
     try {
         const db = await client.db('Gmail_Clone')
-        let users = await db.collection('All Users').find().toArray()
+        let users = await db.collection('All Emails').find().toArray()
         res.status(200).send(users)
     }
     catch (error) {
@@ -26,13 +26,13 @@ app.get('/', async (req, res) => {
     }
 })
 
-// creating new user
-app.post('/signup', async (req, res) => {
+// sending new email
+app.post('/newEmail', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
     try {
         const db = await client.db('Gmail_Clone')
-        await db.collection('All Users').insertOne(req.body)
-        res.status(201).send({ message: 'User Registartion Successful', data: req.body })
+        await db.collection('All Emails').insertOne(req.body)
+        res.status(201).send({ message: 'Email sent', data: req.body })
     }
     catch (error) {
         console.log(error);
@@ -43,49 +43,68 @@ app.post('/signup', async (req, res) => {
     }
 })
 
-// updating user information
-app.put('/updateUser/:username', async (req, res) => {
+// sending email to star
+app.post('/startEmail', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
     try {
         const db = await client.db('Gmail_Clone')
-        let user = await db.collection('All Users').findOne({ username: req.params.username })
-        if (user) {
-            let user = await db.collection('All Users').updateOne({ username: req.params.username }, { $set: req.body })
-            res.status(200).send({ message: 'User info updated successfully' })
-        }
-        else {
-            res.status(400).send({ message: `User not found with email ${req.params.username}` })
-        }
+        await db.collection('Star Emails').insertOne(req.body)
+        res.status(201).send({ message: 'Email sent', data: req.body })
     }
     catch (error) {
-        res.status(400).send({ message: 'Internal server error', error })
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
     }
     finally {
         client.close()
     }
 })
 
-// deleting user account
-app.delete('/deleteUser/:email', async (req, res) => {
+// getting all start emails
+app.get('/allStarEmails', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
     try {
-        if (req.params.email) {
-            const db = await client.db('Gmail_Clone')
-            let user = await db.collection('All Users').findOne({ email: req.params.email })
-            if (user) {
-                let user = await db.collection('All Users').deleteOne({ email: req.params.email })
-                res.status(200).send({ message: 'User deleted successfully' })
-            }
-            else {
-                res.status(400).send({ message: `User not found with email ${req.params.email}` })
-            }
-        }
-        else {
-            res.status(400).send({ message: 'email is mandatory' })
-        }
+        const db = await client.db('Gmail_Clone')
+        let users = await db.collection('Star Emails').find().toArray()
+        res.status(200).send(users)
     }
     catch (error) {
-        res.status(400).send({ message: 'Internal server error', error })
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
+// sending email to important
+app.post('/importantEmail', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        await db.collection('Important Emails').insertOne(req.body)
+        res.status(201).send({ message: 'Email sent', data: req.body })
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
+// getting all important emails
+app.get('/allImportantEmails', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        let users = await db.collection('Important Emails').find().toArray()
+        res.status(200).send(users)
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
     }
     finally {
         client.close()
