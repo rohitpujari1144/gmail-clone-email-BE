@@ -61,6 +61,40 @@ app.get('/getUnreadEmails', async (req, res) => {
     }
 })
 
+// sending email to read email collection
+app.post('/readEmail', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        await db.collection('Read Emails').insertOne(req.body)
+        res.status(201).send({ message: 'Email sent to Read Emails', data: req.body })
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
+// getting all read emails
+app.get('/allReadEmails', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        let allReadEmails = await db.collection('Read Emails').find().toArray()
+        res.status(200).send(allReadEmails)
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
 // sending email to star
 app.post('/startEmail', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
