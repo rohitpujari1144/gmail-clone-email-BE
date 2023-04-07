@@ -78,6 +78,23 @@ app.delete('/removeEmail/:emailId', async (req, res) => {
     }
 })
 
+// removing email from read Emails collection after clicking mark as unread
+app.delete('/markUnread/:emailId', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        let removedEmail = await db.collection('Read Emails').deleteOne({ _id: mongodb.ObjectId(req.params.emailId) })
+        res.status(201).send({ message: 'Email removed successfully', data: removedEmail })
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
 
 // sending email to read email collection
 app.post('/readEmail', async (req, res) => {
