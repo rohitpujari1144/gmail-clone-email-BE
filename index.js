@@ -67,7 +67,7 @@ app.delete('/removeEmail/:emailId', async (req, res) => {
     try {
         const db = await client.db('Gmail_Clone')
         let removedEmail = await db.collection('Unread Emails').deleteOne({ _id: mongodb.ObjectId(req.params.emailId) })
-        res.status(201).send({ message: 'Email removed successfully', data: removedEmail })
+        res.status(200).send({ message: 'Email removed successfully', data: removedEmail })
     }
     catch (error) {
         console.log(error);
@@ -84,7 +84,7 @@ app.delete('/markUnread/:emailId', async (req, res) => {
     try {
         const db = await client.db('Gmail_Clone')
         let removedEmail = await db.collection('Read Emails').deleteOne({ _id: mongodb.ObjectId(req.params.emailId) })
-        res.status(201).send({ message: 'Email removed successfully', data: removedEmail })
+        res.status(200).send({ message: 'Email removed successfully', data: removedEmail })
     }
     catch (error) {
         console.log(error);
@@ -223,6 +223,40 @@ app.get('/allDraftEmails', async (req, res) => {
         const db = await client.db('Gmail_Clone')
         let allDraftEmails = await db.collection('Draft Emails').find().toArray()
         res.status(200).send(allDraftEmails)
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
+// sending email to trash after deleting
+app.post('/trashEmail', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        await db.collection('Trash Emails').insertOne(req.body)
+        res.status(201).send({ message: 'Email sent to trash', data: req.body })
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
+// getting all trash emails
+app.get('/allTrashEmails', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        let allTrashEmails = await db.collection('Trash Emails').find().toArray()
+        res.status(200).send(allTrashEmails)
     }
     catch (error) {
         console.log(error);
