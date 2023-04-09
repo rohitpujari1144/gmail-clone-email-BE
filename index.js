@@ -267,5 +267,39 @@ app.get('/allTrashEmails', async (req, res) => {
     }
 })
 
+// sending email to spam
+app.post('/spamEmail', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        await db.collection('Spam Emails').insertOne(req.body)
+        res.status(201).send({ message: 'Email sent to spam', data: req.body })
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
+// getting all spam emails
+app.get('/allSpamEmails', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        let allSpamEmails = await db.collection('Spam Emails').find().toArray()
+        res.status(200).send(allSpamEmails)
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
 
 app.listen(port, () => { console.log(`App listening on ${port}`) })
