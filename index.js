@@ -26,6 +26,23 @@ app.get('/', async (req, res) => {
     }
 })
 
+// sending new email to All Emails collection
+app.post('/newEmailSending', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        await db.collection('New All Emails').insertOne(req.body)
+        res.status(201).send({ message: 'New Email sent', data: req.body })
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
 // sending new email to All Emails and Unread Emails collection
 app.post('/newEmail', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
