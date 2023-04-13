@@ -128,6 +128,40 @@ app.delete('/deleteTrashEmail/:emailId', async (req, res) => {
     }
 })
 
+// sending email to draft
+app.post('/draftEmail', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        await db.collection('Draft Emails').insertOne(req.body)
+        res.status(201).send({ message: 'Email added into draft emails collection', data: req.body })
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
+// getting all draft emails
+app.get('/allDraftEmails', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        let allDraftEmails = await db.collection('Draft Emails').find().toArray()
+        res.status(200).send(allDraftEmails)
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
 // // updating emails in All Emails collection
 // app.put('/updateEmailInfo/:emailId', async (req, res) => {
 //     const client = await MongoClient.connect(dbUrl)
