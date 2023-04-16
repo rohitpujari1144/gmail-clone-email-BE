@@ -60,6 +60,57 @@ app.put('/updateEmailInfo/:emailId', async (req, res) => {
     }
 })
 
+// getting all spam emails
+app.get('/allSpamEmails', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        let allSpamEmails = await db.collection('Spam Emails').find().toArray()
+        res.status(200).send(allSpamEmails)
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
+// sending email to spam emails collection
+app.post('/spamEmail', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        await db.collection('Spam Emails').insertOne(req.body)
+        res.status(201).send({ message: 'Email sent to spam emails collection', data: req.body })
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
+// deleteing particular from spam emails collection
+app.delete('/deleteSpamEmail/:emailId', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        let removedSpamEmail = await db.collection('Spam Emails').deleteOne({ _id: mongodb.ObjectId(req.params.emailId) })
+        res.status(200).send({ message: 'Spam Email deleted successfully', data: removedSpamEmail })
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
 // deleting email from all Emails collection
 app.delete('/deleteEmail/:emailId', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
@@ -94,7 +145,7 @@ app.get('/allTrashEmails', async (req, res) => {
     }
 })
 
-// posting email to trash
+// sending email to trash
 app.post('/trashEmail', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
     try {
