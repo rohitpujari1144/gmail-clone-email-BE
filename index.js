@@ -230,6 +230,57 @@ app.get('/allDraftEmails', async (req, res) => {
     }
 })
 
+// pushing email to sent email collection after sending email
+app.post('/sentEmail', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        await db.collection('Sent Emails').insertOne(req.body)
+        res.status(201).send({ message: 'Email added into sent emails collection', data: req.body })
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
+// getting all emails from sent email collection
+app.get('/allSentEmails', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        let allSentEmails = await db.collection('Sent Emails').find().toArray()
+        res.status(200).send(allSentEmails)
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
+// deleting particular email from sent email collection
+app.delete('/deleteSentEmail/:emailId', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        let deletedSentEmail = await db.collection('Sent Emails').deleteOne({ _id: mongodb.ObjectId(req.params.emailId) })
+        res.status(200).send({ message: 'Email deleted successfully', data: deletedSentEmail })
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
 // // updating emails in All Emails collection
 // app.put('/updateEmailInfo/:emailId', async (req, res) => {
 //     const client = await MongoClient.connect(dbUrl)
