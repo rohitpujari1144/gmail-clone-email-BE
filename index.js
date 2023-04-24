@@ -247,12 +247,12 @@ app.post('/sentEmail', async (req, res) => {
     }
 })
 
-// getting all emails from sent email collection
-app.get('/allSentEmails', async (req, res) => {
+// getting all sent emails of a particlar user from sent email collection
+app.get('/allSentEmails/:emailFrom', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
     try {
         const db = await client.db('Gmail_Clone')
-        let allSentEmails = await db.collection('Sent Emails').find().toArray()
+        let allSentEmails = await db.collection('Sent Emails').find({ emailFrom:req.params.emailFrom }).toArray()
         res.status(200).send(allSentEmails)
     }
     catch (error) {
