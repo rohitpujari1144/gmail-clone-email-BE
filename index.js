@@ -94,6 +94,23 @@ app.get('/allSpamEmails', async (req, res) => {
     }
 })
 
+// deleteing all spam emails in one click
+app.delete('/emptySpam', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        let removedEmails = await db.collection('All Emails').deleteMany({ spam:true })
+        res.status(200).send({ message: 'All spam emails deleted successfully', data: removedEmails })
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
 // sending email to spam emails collection
 app.post('/spamEmail', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
