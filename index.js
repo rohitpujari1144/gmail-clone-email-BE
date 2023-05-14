@@ -162,6 +162,23 @@ app.get('/allTrashEmails', async (req, res) => {
     }
 })
 
+// deleting all trash emails in one click
+app.delete('/emptyTrash', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        let removedEmails = await db.collection('All Emails').deleteMany({ isTrash:true })
+        res.status(200).send({ message: 'All trash emails deleted successfully', data: removedEmails })
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
 // sending email to trash
 app.post('/trashEmail', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
@@ -185,7 +202,7 @@ app.put('/trashEmail/:emailObjectId', async (req, res) => {
     try {
         const db = await client.db('Gmail_Clone')
         await db.collection('All Emails').findOneAndReplace({_id:mongodb.ObjectId(req.params.emailObjectId)}, req.body)
-        res.status(201).send({ message: 'Email added into trash emails collection', data: req.body })
+        res.status(201).send({ message: 'Email updated as trash email', data: req.body })
     }
     catch (error) {
         console.log(error);
