@@ -218,7 +218,7 @@ app.put('/trashEmail/:emailObjectId', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
     try {
         const db = await client.db('Gmail_Clone')
-        await db.collection('All Emails').findOneAndReplace({_id:mongodb.ObjectId(req.params.emailObjectId)}, req.body)
+        await db.collection('All Emails').findOneAndReplace({_id:mongodb.ObjectId(req.params.emailObjectId)}, {$set:{new:req.body}})
         res.status(201).send({ message: 'Email updated as trash email', data: req.body })
     }
     catch (error) {
@@ -334,12 +334,12 @@ app.get('/allSentEmails/:emailFrom', async (req, res) => {
 })
 
 // deleting particular email from sent email collection
-app.delete('/deleteSentEmail/:emailId', async (req, res) => {
+app.put('/updateSentEmail/:emailObjectId', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
     try {
         const db = await client.db('Gmail_Clone')
-        let deletedSentEmail = await db.collection('Sent Emails').deleteOne({ _id: mongodb.ObjectId(req.params.emailId) })
-        res.status(200).send({ message: 'Email deleted successfully', data: deletedSentEmail })
+        await db.collection('Sent Emails').findOneAndReplace({_id:mongodb.ObjectId(req.params.emailObjectId)}, req.body)
+        res.status(201).send({ message: 'Email updated as trash email', data: req.body })
     }
     catch (error) {
         console.log(error);
@@ -349,4 +349,5 @@ app.delete('/deleteSentEmail/:emailId', async (req, res) => {
         client.close()
     }
 })
+
 app.listen(port, () => { console.log(`App listening on ${port}`) })
