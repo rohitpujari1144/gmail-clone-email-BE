@@ -299,23 +299,6 @@ app.get('/allDraftEmails', async (req, res) => {
     }
 })
 
-// pushing email to sent email collection after sending email
-app.post('/sentEmail', async (req, res) => {
-    const client = await MongoClient.connect(dbUrl)
-    try {
-        const db = await client.db('Gmail_Clone')
-        await db.collection('Sent Emails').insertOne(req.body)
-        res.status(201).send({ message: 'Email added into sent emails collection', data: req.body })
-    }
-    catch (error) {
-        console.log(error);
-        res.status(500).send({ message: 'Internal server error', error })
-    }
-    finally {
-        client.close()
-    }
-})
-
 // getting all sent emails of a particlar user from All Emails collection
 app.get('/allSentEmails/:emailFrom', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
@@ -338,8 +321,8 @@ app.put('/updateSentEmail/:emailObjectId', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
     try {
         const db = await client.db('Gmail_Clone')
-        await db.collection('Sent Emails').findOneAndReplace({_id:mongodb.ObjectId(req.params.emailObjectId)}, req.body)
-        res.status(201).send({ message: 'Email updated as trash email', data: req.body })
+        await db.collection('All Emails').findOneAndReplace({_id:mongodb.ObjectId(req.params.emailObjectId)}, req.body)
+        res.status(201).send({ message: 'Email updated', data: req.body })
     }
     catch (error) {
         console.log(error);
