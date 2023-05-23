@@ -333,4 +333,21 @@ app.put('/updateSentEmail/:emailObjectId', async (req, res) => {
     }
 })
 
+// deleting sent email from All Emails collection 
+app.delete('/deleteSentEmail/:emailObjectId', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        await db.collection('All Emails').findOneAndDelete({_id:mongodb.ObjectId(req.params.emailObjectId)})
+        res.status(201).send({ message: 'Email deleted', data: req.body })
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
 app.listen(port, () => { console.log(`App listening on ${port}`) })
