@@ -321,7 +321,7 @@ app.put('/updateSentEmail/:emailObjectId', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
     try {
         const db = await client.db('Gmail_Clone')
-        await db.collection('All Emails').findOneAndReplace({_id:mongodb.ObjectId(req.params.emailObjectId)}, req.body)
+        await db.collection('All Emails').findOneAndUpdate({_id:mongodb.ObjectId(req.params.emailObjectId)}, {$set:req.body})
         res.status(201).send({ message: 'Email updated', data: req.body })
     }
     catch (error) {
