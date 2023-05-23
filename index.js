@@ -316,7 +316,7 @@ app.get('/allSentEmails/:emailFrom', async (req, res) => {
     }
 })
 
-// deleting particular email from sent email collection
+// updating sent email details in All Emails collection
 app.put('/updateSentEmail/:emailObjectId', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
     try {
