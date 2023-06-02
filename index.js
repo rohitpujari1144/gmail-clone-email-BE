@@ -248,57 +248,6 @@ app.delete('/deleteTrashEmail/:emailId', async (req, res) => {
     }
 })
 
-// sending email to draft
-app.post('/draftEmail', async (req, res) => {
-    const client = await MongoClient.connect(dbUrl)
-    try {
-        const db = await client.db('Gmail_Clone')
-        await db.collection('Draft Emails').insertOne(req.body)
-        res.status(201).send({ message: 'Email added into draft emails collection', data: req.body })
-    }
-    catch (error) {
-        console.log(error);
-        res.status(500).send({ message: 'Internal server error', error })
-    }
-    finally {
-        client.close()
-    }
-})
-
-// deleting email in draft collection
-app.delete('/deleteDraftEmail/:emailId', async (req, res) => {
-    const client = await MongoClient.connect(dbUrl)
-    try {
-        const db = await client.db('Gmail_Clone')
-        let deletedDraftEmail = await db.collection('Draft Emails').deleteOne({ _id: mongodb.ObjectId(req.params.emailId) })
-        res.status(200).send({ message: 'Email deleted successfully', data: deletedDraftEmail })
-    }
-    catch (error) {
-        console.log(error);
-        res.status(500).send({ message: 'Internal server error', error })
-    }
-    finally {
-        client.close()
-    }
-})
-
-// getting all draft emails
-app.get('/allDraftEmails', async (req, res) => {
-    const client = await MongoClient.connect(dbUrl)
-    try {
-        const db = await client.db('Gmail_Clone')
-        let allDraftEmails = await db.collection('Draft Emails').find().toArray()
-        res.status(200).send(allDraftEmails)
-    }
-    catch (error) {
-        console.log(error);
-        res.status(500).send({ message: 'Internal server error', error })
-    }
-    finally {
-        client.close()
-    }
-})
-
 // getting all sent emails of a particlar user from All Emails collection
 app.get('/allSentEmails/:emailFrom', async (req, res) => {
     const client = await MongoClient.connect(dbUrl)
@@ -340,6 +289,23 @@ app.delete('/deleteSentEmail/:emailObjectId', async (req, res) => {
         const db = await client.db('Gmail_Clone')
         await db.collection('All Emails').findOneAndDelete({_id:mongodb.ObjectId(req.params.emailObjectId)})
         res.status(201).send({ message: 'Email deleted', data: req.body })
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).send({ message: 'Internal server error', error })
+    }
+    finally {
+        client.close()
+    }
+})
+
+// getting all Draft Emails of a particular user
+app.get('/getAllDraftEmails/:emailFrom', async (req, res) => {
+    const client = await MongoClient.connect(dbUrl)
+    try {
+        const db = await client.db('Gmail_Clone')
+        let getAllDraftEmails = await db.collection('All Emails').find({isDraftEmail:true, emailFrom:req.params.emailFrom} ).toArray()
+        res.status(200).send(getAllDraftEmails)
     }
     catch (error) {
         console.log(error);
